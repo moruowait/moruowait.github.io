@@ -6,15 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>莫的主页</title>
+  <title>Linux 中硬连接（hard link）与软连接（symbolic link）的区别 | 莫的主页</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="莫的主页">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个文">
+<meta name="keywords" content="技术名词,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 中硬连接（hard link）与软连接（symbolic link）的区别">
+<meta property="og:url" content="http://yoursite.com/2019/04/22/soft_hard_link/index.html">
 <meta property="og:site_name" content="莫的主页">
+<meta property="og:description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个文">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-22T05:02:55.109Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="莫的主页">
+<meta name="twitter:title" content="Linux 中硬连接（hard link）与软连接（symbolic link）的区别">
+<meta name="twitter:description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个文">
   
     <link rel="alternative" href="/atom.xml" title="莫的主页" type="application/atom+xml">
   
@@ -144,16 +149,14 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-soft_hard_link" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-soft_hard_link" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/22/soft_hard_link/">Linux 中硬连接（hard link）与软连接（symbolic link）的区别</a>
+    <h1 class="article-title" itemprop="name">
+      Linux 中硬连接（hard link）与软连接（symbolic link）的区别
     </h1>
   
 
@@ -175,9 +178,38 @@
 </blockquote>
 </li>
 </ul>
-        
-          <a class="article-more-a" href="/2019/04/22/soft_hard_link/#more">more >></a>
-        
+<a id="more"></a>
+<ul>
+<li><p>block：存储的文件内容，也叫数据区块(data block)，每个block都有自己的编号，Ext2支持的单位block容量仅为1k、2k、4k。如果文件太大，则会占用多个block。</p>
+</li>
+<li><p>super block：记录文件系统的整体信息，包括inode/block的总量、使用量、剩余量，以及文件系统的格式与相关信息等。</p>
+</li>
+</ul>
+<p>因此对于一个文件来说，它的inode号就类似于id的作用，用于存放关于该文件的一些基本信息。</p>
+<h2 id="硬连接（hard-link）"><a href="#硬连接（hard-link）" class="headerlink" title="硬连接（hard link）"></a>硬连接（hard link）</h2><p>若两个文件，拥有同样的 inode，那么就产生了所谓的硬连接。</p>
+<p>1、创建文件 a，并查看属性</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ touch a</span><br><span class="line">$ ll a</span><br><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:29 a</span><br></pre></td></tr></table></figure>
+<p>tips：如果不是很懂 Linux 中文档属性、拥有者、群组、权限、差异等，点击<a href="https://www.cnblogs.com/justmine/p/9053419.html" target="_blank" rel="noopener">传送门</a>。</p>
+<p>2、创建 a 的硬连接 b，并查看 a 和 b 的属性</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ln a b</span><br><span class="line">$ ll a b</span><br><span class="line">-rw-r--r--  2 nobody  staff     0B  4 22 12:29 a</span><br><span class="line">-rw-r--r--  2 nobody  staff     0B  4 22 12:29 b</span><br></pre></td></tr></table></figure>
+<p>可以发现，a和b的属性完全一致，注意其中第二列数字表示的就是该文件的硬连接数。</p>
+<p>3、对于硬连接来说，它的好处就是“安全”。你将其中任何一个文件名删除(rm -f)，文件都是存在的，因为文件的inode一直存在</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ rm -f a</span><br><span class="line">$ ll b</span><br><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:29 b</span><br></pre></td></tr></table></figure>
+<p><code>并且由于两个文件都是对应的相同的 inode 和 block，因此对任何其中一个进行修改编辑，结果都会生效。</code></p>
+<p>4、如果此时重建 a，则新建的 a 与 b 没有任何关系，故存在硬连接关系</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:40 a</span><br><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:29 b</span><br></pre></td></tr></table></figure>
+<h2 id="软连接（symbolic-link）"><a href="#软连接（symbolic-link）" class="headerlink" title="软连接（symbolic link）"></a>软连接（symbolic link）</h2><p>软连接的意义就如同 windows 平台下的快捷方式，它是一个类型为 l 的文件，拥有自己的 inode 和 block，对它进行操作也相当于对被 link 文件进行操作。</p>
+<p><code>语法： ln -s source_file target_file</code></p>
+<p>1、创建 a 和 a 的软连接 b</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ touch a</span><br><span class="line">$ ll a</span><br><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:47 a</span><br><span class="line">$ ln -s a b</span><br><span class="line">$ ll a b</span><br><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:47 a</span><br><span class="line">lrwxr-xr-x  1 nobody  staff     1B  4 22 12:49 b -&gt; a</span><br></pre></td></tr></table></figure>
+<p>2、为 a 写入数据，查看 b 中的内容。删除 a，再查看 b 的内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ cat &gt; a &lt;&lt;EOF</span><br><span class="line">heredoc&gt; This is a <span class="built_in">test</span> !</span><br><span class="line">heredoc&gt; EOF</span><br><span class="line">$ cat b</span><br><span class="line">This is a <span class="built_in">test</span> !</span><br><span class="line">$ rm -f a</span><br><span class="line">$ cat b</span><br><span class="line">cat: b: No such file or directory</span><br></pre></td></tr></table></figure>
+<p>b 的连接失效了</p>
+<p>3、重新创建文件 a，然后查看 b 的内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ ll b</span><br><span class="line">lrwxr-xr-x  1 nobody  staff     1B  4 22 12:49 b -&gt; a</span><br><span class="line">$ touch a</span><br><span class="line">$ cat &gt; a &lt;&lt; EOF</span><br><span class="line">heredoc&gt; This is another <span class="built_in">test</span> !</span><br><span class="line">heredoc&gt; EOF</span><br><span class="line">$ cat b</span><br><span class="line">This is another <span class="built_in">test</span> !</span><br></pre></td></tr></table></figure>
+<p>发现b重新连接成功了，并且连接至了原来同名的a文件。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于硬连接来说，共享的是 inode，重新创建的同名文件不具有相同的 inode，因此于原来毫无干系。而对于软连接来说，它连接记录的是一个文件的绝对路径，因此当重新创建同名文件时候，软连接又重新生效了。</p>
+
       
 
       
@@ -203,16 +235,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/04/22/soft_hard_link/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/04/22/soft_hard_link/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2019/04/19/mac_path/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">MAC 如何配置 PATH 环境变量？</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -227,339 +318,32 @@
         </div>
         
         
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-mac_path" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/19/mac_path/">MAC 如何配置 PATH 环境变量？</a>
-    </h1>
-  
-
-        
-        <a href="/2019/04/19/mac_path/" class="archive-article-date">
-  	<time datetime="2019-04-19T09:28:10.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-04-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>之前在配置 MAC 环境变量的时候，总是云里雾里的不知道要怎么配置，都是从网上找配置方案，然后成功了完事大吉，不成功就换一种配置方案，所以并不知道为什么要这么配置，今天就来整理一下 MAC 应该如何来配置环境变量。</p>
-<h2 id="Mac-osx-下环境变量的加载顺序"><a href="#Mac-osx-下环境变量的加载顺序" class="headerlink" title="Mac osx 下环境变量的加载顺序"></a>Mac osx 下环境变量的加载顺序</h2><p>MAC 默认的终端是 bash。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/etc/profile    <span class="comment"># 系统级，系统启动加载</span></span><br><span class="line">/etc/paths      <span class="comment"># 系统级，系统启动加载</span></span><br><span class="line">~/.bash_profile <span class="comment"># 用户级</span></span><br><span class="line">~/.bash_login   <span class="comment"># 用户级</span></span><br><span class="line">~/.profile      <span class="comment"># 用户级</span></span><br><span class="line">~/.bashrc       <span class="comment"># 用户级</span></span><br></pre></td></tr></table></figure>
-        
-          <a class="article-more-a" href="/2019/04/19/mac_path/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">PATH</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">MAC</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/04/19/mac_path/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux-Ext文件系统"><span class="toc-number">1.</span> <span class="toc-text">Linux Ext文件系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬连接（hard-link）"><span class="toc-number">2.</span> <span class="toc-text">硬连接（hard link）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#软连接（symbolic-link）"><span class="toc-number">3.</span> <span class="toc-text">软连接（symbolic link）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+                    </div>
+                </span>
             </div>
         </div>
         
-        
     </div>
 </aside>
 
 
 
-
   
-    <article id="post-mutex_or_channel" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/19/mutex_or_channel/">加锁 Mutex 和 Channel 性能对比</a>
-    </h1>
   
 
-        
-        <a href="/2019/04/19/mutex_or_channel/" class="archive-article-date">
-  	<time datetime="2019-04-19T06:38:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-04-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h2><p>首先在一个目录下新建两个文件：</p>
-<p>main.go</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"sync"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> mutex = sync.Mutex&#123;&#125;</span><br><span class="line"><span class="keyword">var</span> ch = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">bool</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UseMutex</span><span class="params">()</span></span> &#123;</span><br><span class="line">    mutex.Lock()</span><br><span class="line">    mutex.Unlock()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UseChan</span><span class="params">()</span></span> &#123;</span><br><span class="line">    ch &lt;- <span class="literal">true</span></span><br><span class="line">    &lt;-ch</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-        
-          <a class="article-more-a" href="/2019/04/19/mutex_or_channel/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Go</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/04/19/mutex_or_channel/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-logrotate" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/18/logrotate/">什么是 logrotate ？</a>
-    </h1>
   
 
-        
-        <a href="/2019/04/18/logrotate/" class="archive-article-date">
-  	<time datetime="2019-04-18T10:28:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-04-18</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="什么是-logrotate"><a href="#什么是-logrotate" class="headerlink" title="什么是 logrotate"></a>什么是 logrotate</h2><p>logrotate 旨在简化生成大量日志文件的系统的管理。它允许自动循环、压缩、删除和邮寄日志文件。每个日志文件可以按每天、每周、每月的粒度来处理，也可以在其增长过大时处理。</p>
-<p>通常来说，logrotate 作为日常 cron 作业运行。它一天内修改日志的次数不会超过一次，除非该日志的标准基于日志的大小，并且 logrotate 每天运行一次以上，或者使用 <code>-f</code> 或 <code>-force</code> 的选项。</p>
-<p>在命令行上可以给出任意数量的配置文件。稍后的配置文件可能会覆盖前面文件中给出的选项，因此列出 logrotate 配置文件的顺序很重要。通常，应该使用一个配置文件，其中包含需要的任何其他配置文件。有关如何使用 include 指令来完成此任务的更多信息，请参见 man page。如果在命令行上给出一个目录，则该目录中的每个文件都是配置文件。</p>
-<p>如果没有给出命令行参数，logrotate 将打印版本和版权信息，以及一个简短的使用总结。如果在循环日志时发生任何错误，logrotate 将以非零状态退出。</p>
-        
-          <a class="article-more-a" href="/2019/04/18/logrotate/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">技术名词</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">运维</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Log</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/04/18/logrotate/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-rss" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/14/rss/">什么是 RSS ？</a>
-    </h1>
   
 
-        
-        <a href="/2019/04/14/rss/" class="archive-article-date">
-  	<time datetime="2019-04-14T10:28:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-04-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="什么是-RSS-？"><a href="#什么是-RSS-？" class="headerlink" title="什么是 RSS ？"></a>什么是 RSS ？</h2><p>在解释 RSS 是什么之前，让我先来打一个比方。</p>
-<p>读大学的时候，我有个习惯，就是每天要去看食堂后面的海报栏。在那里，会贴出各种各样最新的消息，比如哪个系要开讲座了、星期二晚上的电影放什么、二手货转让等等。只要看一下海报栏，就会对学校的各种活动心中有数。</p>
-<p>如果没有海报栏的话，要想知道这些消息就会很麻烦。讲座消息会贴在各个系自己的公告栏里，电影排片表是贴在电影院里的，二手货消息则会贴在各幢宿舍的楼道里。我所在的大学有 20 几个系，一万多人，要想知道所有这些消息的话，即使是可能的话，也会相当的麻烦。</p>
-<p>从这个例子出发，让我们来考虑一下互联网。</p>
-        
-          <a class="article-more-a" href="/2019/04/14/rss/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">技术名词</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/04/14/rss/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
 
 
@@ -582,8 +366,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
