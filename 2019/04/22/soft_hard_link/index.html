@@ -8,18 +8,18 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>Linux 中硬连接（hard link）与软连接（symbolic link）的区别 | 莫的主页</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个文">
+  <meta name="description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门。 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个">
 <meta name="keywords" content="技术名词,Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 中硬连接（hard link）与软连接（symbolic link）的区别">
 <meta property="og:url" content="http://yoursite.com/2019/04/22/soft_hard_link/index.html">
 <meta property="og:site_name" content="莫的主页">
-<meta property="og:description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个文">
+<meta property="og:description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门。 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-22T05:02:55.109Z">
+<meta property="og:updated_time" content="2019-04-22T07:07:41.780Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux 中硬连接（hard link）与软连接（symbolic link）的区别">
-<meta name="twitter:description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个文">
+<meta name="twitter:description" content="首先要简单了解一下 Linux 的 Ext 文件系统，此处传送门。 Linux Ext文件系统Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：  inode：记录文件的属性，一个">
   
     <link rel="alternative" href="/atom.xml" title="莫的主页" type="application/atom+xml">
   
@@ -169,7 +169,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>首先要简单了解一下 Linux 的 Ext 文件系统，此处<a href="https://www.cnblogs.com/justmine/p/9128730.html" target="_blank" rel="noopener">传送门</a></p>
+        <p>首先要简单了解一下 Linux 的 Ext 文件系统，此处<a href="https://www.cnblogs.com/justmine/p/9128730.html" target="_blank" rel="noopener">传送门</a>。</p>
 <h2 id="Linux-Ext文件系统"><a href="#Linux-Ext文件系统" class="headerlink" title="Linux Ext文件系统"></a>Linux Ext文件系统</h2><p>Linux 的 Ext 文件系统是如何与磁盘内存产生对应的呢？我们知道，在使用磁盘内存之前，需要为磁盘分区，然后为所分区域格式化出一个统一的文件系统（也有例外，如LVM与磁盘阵列技术）。那么，在这样一个统一的文件系统中，根据数据的不同，就可以将内存分为以下 3 种类型：</p>
 <ul>
 <li><p>inode：记录文件的属性，一个文件占用一个 inode，同时记录此文件的数据所在的 block 号码。当用户搜索或者访问一个文件时，UNIX 系统通过 inode 表查找正确的 inode 编号。在找到 inode 编号之后，相关的命令才可以访问该 inode，并对其进行适当的更改。</p>
@@ -202,13 +202,14 @@
 <p><code>语法： ln -s source_file target_file</code></p>
 <p>1、创建 a 和 a 的软连接 b</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ touch a</span><br><span class="line">$ ll a</span><br><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:47 a</span><br><span class="line">$ ln -s a b</span><br><span class="line">$ ll a b</span><br><span class="line">-rw-r--r--  1 nobody  staff     0B  4 22 12:47 a</span><br><span class="line">lrwxr-xr-x  1 nobody  staff     1B  4 22 12:49 b -&gt; a</span><br></pre></td></tr></table></figure>
-<p>2、为 a 写入数据，查看 b 中的内容。删除 a，再查看 b 的内容</p>
+<p>2、为 a 写入数据，查看 b 中的内容。删除 a，再查看 b 的内容会发现 b 的连接失效了</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ cat &gt; a &lt;&lt;EOF</span><br><span class="line">heredoc&gt; This is a <span class="built_in">test</span> !</span><br><span class="line">heredoc&gt; EOF</span><br><span class="line">$ cat b</span><br><span class="line">This is a <span class="built_in">test</span> !</span><br><span class="line">$ rm -f a</span><br><span class="line">$ cat b</span><br><span class="line">cat: b: No such file or directory</span><br></pre></td></tr></table></figure>
-<p>b 的连接失效了</p>
-<p>3、重新创建文件 a，然后查看 b 的内容</p>
+<p>3、重新创建文件 a，然后查看 b 的内容会发现b重新连接成功了，并且连接至了原来同名的a文件。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ ll b</span><br><span class="line">lrwxr-xr-x  1 nobody  staff     1B  4 22 12:49 b -&gt; a</span><br><span class="line">$ touch a</span><br><span class="line">$ cat &gt; a &lt;&lt; EOF</span><br><span class="line">heredoc&gt; This is another <span class="built_in">test</span> !</span><br><span class="line">heredoc&gt; EOF</span><br><span class="line">$ cat b</span><br><span class="line">This is another <span class="built_in">test</span> !</span><br></pre></td></tr></table></figure>
-<p>发现b重新连接成功了，并且连接至了原来同名的a文件。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于硬连接来说，共享的是 inode，重新创建的同名文件不具有相同的 inode，因此于原来毫无干系。而对于软连接来说，它连接记录的是一个文件的绝对路径，因此当重新创建同名文件时候，软连接又重新生效了。</p>
+<h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><ul>
+<li><a href="https://blog.csdn.net/gxzc936733992/article/details/49340429" target="_blank" rel="noopener">Linux 中硬连接（hard link）与软连接（symbolic link）的区别</a></li>
+</ul>
 
       
 
@@ -296,6 +297,15 @@
   
 <nav id="article-nav">
   
+    <a href="/2019/04/24/closure/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          什么是闭包 ？
+        
+      </div>
+    </a>
+  
   
     <a href="/2019/04/19/mac_path/" id="article-nav-older" class="article-nav-link-wrap">
       <div class="article-nav-title">MAC 如何配置 PATH 环境变量？</div>
@@ -325,7 +335,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux-Ext文件系统"><span class="toc-number">1.</span> <span class="toc-text">Linux Ext文件系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬连接（hard-link）"><span class="toc-number">2.</span> <span class="toc-text">硬连接（hard link）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#软连接（symbolic-link）"><span class="toc-number">3.</span> <span class="toc-text">软连接（symbolic link）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux-Ext文件系统"><span class="toc-number">1.</span> <span class="toc-text">Linux Ext文件系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬连接（hard-link）"><span class="toc-number">2.</span> <span class="toc-text">硬连接（hard link）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#软连接（symbolic-link）"><span class="toc-number">3.</span> <span class="toc-text">软连接（symbolic link）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#相关链接"><span class="toc-number">5.</span> <span class="toc-text">相关链接</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -445,10 +455,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">PATH</a>
               </li>
              
@@ -458,6 +464,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">Go</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Javascript</a>
               </li>
             
             <div class="clearfix"></div>
